@@ -190,7 +190,7 @@ private:
     }
 
     bool includeOtherFile(string filename) {
-        if (filename != "iostream") return false;
+        if (filename == "iostream") return false;
         filename = "test/" + filename;
         string file;
         ifstream is(filename);
@@ -212,13 +212,13 @@ private:
         return true;
     }
 
-    vector<string> splitString(const string &str, const string &pattern) {
+    static vector<string> splitString(const string &str, const string &pattern) {
         char *strTmp = new char[strlen(str.c_str()) + 1];
         strcpy(strTmp, str.c_str());
         vector<string> resultVec;
         char *tmpStr = strtok(strTmp, pattern.c_str());
         while (tmpStr != nullptr) {
-            resultVec.push_back(string(tmpStr));
+            resultVec.emplace_back(string(tmpStr));
             tmpStr = strtok(nullptr, pattern.c_str());
         }
         delete[] strTmp;
