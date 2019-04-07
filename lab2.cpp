@@ -1,4 +1,5 @@
 #include "preprocessor.h"
+#include <cstring>
 
 string get_unprocessed_code(int number);
 
@@ -15,9 +16,9 @@ int main() {
 
 void run_test(int test_case_number) {
     string raw_code = get_unprocessed_code(test_case_number);
-    string processed_code = preProcess(raw_code);
+    Preprocessor preprocessor;
+    string processed_code = preprocessor.pre_process(raw_code);
     put_processed_code(test_case_number, processed_code);
-    reset();
 }
 
 string get_unprocessed_code(int number) {
