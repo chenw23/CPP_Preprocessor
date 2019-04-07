@@ -1,8 +1,6 @@
 #include <cstring>
 #include "preprocessor.h"
 
-using namespace std;
-
 string processedCode;
 map<string, string> macros;
 string macroName;
@@ -20,7 +18,6 @@ string preProcess(string rawCode) {
     }
     return processedCode;
 }
-
 
 void instructionJudge() {
     if (line.find("//") != string::npos) return;

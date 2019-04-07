@@ -1,7 +1,5 @@
 #include "preprocessor.h"
 
-using namespace std;
-
 string get_unprocessed_code(int number);
 
 void put_processed_code(int number, string code);
