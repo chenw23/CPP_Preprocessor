@@ -1,8 +1,6 @@
 #include <cstring>
 #include "preprocessor.h"
 
-#define NPOS string::npos
-
 using namespace std;
 
 string processedCode;
@@ -25,40 +23,40 @@ string preProcess(string rawCode) {
 
 
 void instructionJudge() {
-    if (line.find("//") != NPOS) return;
+    if (line.find("//") != string::npos) return;
     if (line.find("#") == 0) {
         string tmpString = line.substr(line.find(" ", 2) + 1);
-        if (line.find("else") != NPOS) {
+        if (line.find("else") != string::npos) {
             elseHandler();
             return;
-        } else if (line.find("endif") != NPOS) {
+        } else if (line.find("endif") != string::npos) {
             endifHandler();
             return;
-        } else if (line.find("ifdef") != NPOS) {
+        } else if (line.find("ifdef") != string::npos) {
             macroName = tmpString;
             ifdefHandler();
             return;
-        } else if (line.find("ifndef") != NPOS) {
+        } else if (line.find("ifndef") != string::npos) {
             macroName = tmpString;
             ifndefHander();
             return;
-        } else if (line.find("undef") != NPOS) {
+        } else if (line.find("undef") != string::npos) {
             macroName = tmpString;
             undefHandler();
             return;
         }
         if (isShouldRead) {
-            if (line.find("include") != NPOS) {
+            if (line.find("include") != string::npos) {
                 macroName = tmpString;
                 includeHandler();
                 return;
-            } else if (line.find("define") != NPOS) {
+            } else if (line.find("define") != string::npos) {
                 int index = tmpString.find(" ");
                 macroName = tmpString.substr(0, index);
                 macroValue = tmpString.substr(index + 1);
                 defineHandler();
                 return;
-            } else if (line.find("if") != NPOS) {
+            } else if (line.find("if") != string::npos) {
                 macroName = tmpString;
                 ifHandler();
                 return;
@@ -74,7 +72,7 @@ void normalInstructionHandler() {
         macroName = iterator->first;
         macroValue = iterator->second;
         string name, functionName;
-        if (macroName.find("(") != NPOS)
+        if (macroName.find("(") != string::npos)
             functionName = macroName.substr(0, macroName.find("(") + 1);
         else name = macroName;
         functionHandler(functionName);
@@ -85,7 +83,7 @@ void normalInstructionHandler() {
 }
 
 bool functionHandler(string name) {
-    if (name.compare("") == 0 || line.find(name) == NPOS || macroValue.compare("") == 0)
+    if (name.compare("") == 0 || line.find(name) == string::npos || macroValue.compare("") == 0)
         return false;
     int indexOfLeftParenthesis = macroName.find("(");
     int indexOfRightParenthesis = macroName.find(")");
@@ -95,17 +93,17 @@ bool functionHandler(string name) {
     string functionName = macroName.substr(0, indexOfLeftParenthesis);
     int index;
     string argInput;
-    if ((index = line.find(functionName)) != NPOS) {
+    if ((index = line.find(functionName)) != string::npos) {
         indexOfLeftParenthesis = line.find("(", index);
         indexOfRightParenthesis = line.find(")", index);
         argInput = line.substr(indexOfLeftParenthesis + 1,
                                indexOfRightParenthesis - indexOfLeftParenthesis - 1);
         int tempIndex;
         string tmpValue;
-        if ((tempIndex = macroValue.find("##")) != NPOS) {
+        if ((tempIndex = macroValue.find("##")) != string::npos) {
             tmpValue = macroValue;
             tmpValue.replace(0, tempIndex + 3, argInput);
-        } else if ((tempIndex = macroValue.find_last_of("\"#")) != NPOS) {
+        } else if ((tempIndex = macroValue.find_last_of("\"#")) != string::npos) {
             tmpValue = macroValue;
             argOrigin = "\"#" + argOrigin;
             tmpValue.replace(tempIndex, argOrigin.length(), "\"" + argInput + "\"");
@@ -120,11 +118,11 @@ bool functionHandler(string name) {
 }
 
 void notFunctionHandler(string name) {
-    if (name.compare("") == 0 || line.find(name) == NPOS || macroValue.compare("") == 0) {
+    if (name.compare("") == 0 || line.find(name) == string::npos || macroValue.compare("") == 0) {
         return;
     }
     int index;
-    if ((index = line.find(name)) != NPOS) {
+    if ((index = line.find(name)) != string::npos) {
         line.replace(index, name.length(), macroValue);
     }
 }
