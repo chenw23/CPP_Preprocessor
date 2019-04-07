@@ -97,8 +97,8 @@ private:
         processedCode.append(line).push_back('\n');
     }
 
-    bool functionHandler(string name) {
-        if (name.compare("") == 0 || line.find(name) == string::npos || macroValue == "")
+    bool functionHandler(const string &name) {
+        if (name.empty() || line.find(name) == string::npos || macroValue.empty())
             return false;
         int indexOfLeftParenthesis = macroName.find('(');
         int indexOfRightParenthesis = macroName.find(')');
@@ -132,10 +132,9 @@ private:
         return true;
     }
 
-    void notFunctionHandler(string name) {
-        if (name.compare("") == 0 || line.find(name) == string::npos || macroValue == "") {
+    void notFunctionHandler(const string &name) {
+        if (name.empty() || line.find(name) == string::npos || macroValue.empty())
             return;
-        }
         int index;
         if ((index = line.find(name)) != string::npos) {
             line.replace(index, name.length(), macroValue);
