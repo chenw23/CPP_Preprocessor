@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
 
-add_executable(lab2 lab2.cpp preprocessLogic.cpp)
+add_executable(lab2 lab2.cpp preprocessor.cpp)

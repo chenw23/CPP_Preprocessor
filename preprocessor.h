@@ -8,8 +8,6 @@
 #include <stack>
 
 using namespace std;
-#ifndef LAB3_PREPROCESSLOGIC_H
-#define LAB3_PREPROCESSLOGIC_H
 
 void reset();
 
@@ -42,5 +40,3 @@ void endifHandler();
 bool includeOtherFile(string filename);
 
 vector<string> splitString(const string &str, const string &pattern);
-
-#endif //LAB3_PREPROCESSLOGIC_H
