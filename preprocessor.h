@@ -98,7 +98,7 @@ private:
     }
 
     bool functionHandler(string name) {
-        if (name.compare("") == 0 || line.find(name) == string::npos || macroValue.compare("") == 0)
+        if (name.compare("") == 0 || line.find(name) == string::npos || macroValue == "")
             return false;
         int indexOfLeftParenthesis = macroName.find('(');
         int indexOfRightParenthesis = macroName.find(')');
@@ -133,7 +133,7 @@ private:
     }
 
     void notFunctionHandler(string name) {
-        if (name.compare("") == 0 || line.find(name) == string::npos || macroValue.compare("") == 0) {
+        if (name.compare("") == 0 || line.find(name) == string::npos || macroValue == "") {
             return;
         }
         int index;
@@ -179,7 +179,7 @@ private:
         while (macros.count(macroName) != 0) {
             macroName = macros[macroName];
         }
-        isShouldRead = (!macroName.compare("1"));
+        isShouldRead = (macroName != "1");
     }
 
     void endifHandler() {
@@ -190,7 +190,7 @@ private:
     }
 
     bool includeOtherFile(string filename) {
-        if (!filename.compare("iostream")) return false;
+        if (filename != "iostream") return false;
         filename = "test/" + filename;
         string file;
         ifstream is(filename);
@@ -198,8 +198,8 @@ private:
             cout << "Broken input " + filename;
             return false;
         } else {
-            string line;
-            while (getline(is, line)) file.append(line).push_back('\n');
+            string reading_line;
+            while (getline(is, reading_line)) file.append(reading_line).push_back('\n');
             is.close();
         }
         stack<bool> temStack = shouldReadStack;
@@ -217,9 +217,9 @@ private:
         strcpy(strTmp, str.c_str());
         vector<string> resultVec;
         char *tmpStr = strtok(strTmp, pattern.c_str());
-        while (tmpStr != NULL) {
+        while (tmpStr != nullptr) {
             resultVec.push_back(string(tmpStr));
-            tmpStr = strtok(NULL, pattern.c_str());
+            tmpStr = strtok(nullptr, pattern.c_str());
         }
         delete[] strTmp;
         return resultVec;
