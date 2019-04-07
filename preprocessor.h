@@ -11,7 +11,7 @@ class Preprocessor {
 public:
     Preprocessor() = default;
 
-    string pre_process(string rawCode) {
+    string pre_process(const string &rawCode) {
         vector<string> rawCodes = splitString(rawCode, "\n");
         int length = rawCodes.size();
         for (int i = 0; i < length; i++) {
