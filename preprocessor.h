@@ -39,8 +39,8 @@ private:
 
     void instructionJudge() {
         if (line.find("//") != string::npos) return;
-        if (line.find("#") == 0) {
-            string tmpString = line.substr(line.find(" ", 2) + 1);
+        if (line.find('#') == 0) {
+            string tmpString = line.substr(line.find(' ', 2) + 1);
             if (line.find("else") != string::npos) {
                 elseHandler();
                 return;
@@ -66,7 +66,7 @@ private:
                     includeHandler();
                     return;
                 } else if (line.find("define") != string::npos) {
-                    int index = tmpString.find(" ");
+                    int index = tmpString.find(' ');
                     macroName = tmpString.substr(0, index);
                     macroValue = tmpString.substr(index + 1);
                     defineHandler();
@@ -87,8 +87,8 @@ private:
             macroName = iterator->first;
             macroValue = iterator->second;
             string name, functionName;
-            if (macroName.find("(") != string::npos)
-                functionName = macroName.substr(0, macroName.find("(") + 1);
+            if (macroName.find('(') != string::npos)
+                functionName = macroName.substr(0, macroName.find('(') + 1);
             else name = macroName;
             functionHandler(functionName);
             notFunctionHandler(name);
@@ -100,8 +100,8 @@ private:
     bool functionHandler(string name) {
         if (name.compare("") == 0 || line.find(name) == string::npos || macroValue.compare("") == 0)
             return false;
-        int indexOfLeftParenthesis = macroName.find("(");
-        int indexOfRightParenthesis = macroName.find(")");
+        int indexOfLeftParenthesis = macroName.find('(');
+        int indexOfRightParenthesis = macroName.find(')');
         string argOrigin =
                 macroName.substr(indexOfLeftParenthesis + 1,
                                  indexOfRightParenthesis - indexOfLeftParenthesis - 1);
@@ -109,8 +109,8 @@ private:
         int index;
         string argInput;
         if ((index = line.find(functionName)) != string::npos) {
-            indexOfLeftParenthesis = line.find("(", index);
-            indexOfRightParenthesis = line.find(")", index);
+            indexOfLeftParenthesis = line.find('(', index);
+            indexOfRightParenthesis = line.find(')', index);
             argInput = line.substr(indexOfLeftParenthesis + 1,
                                    indexOfRightParenthesis - indexOfLeftParenthesis - 1);
             int tempIndex;
@@ -144,7 +144,7 @@ private:
 
     void includeHandler() {
         string filename = macroName.substr(1, macroName.length() - 2);
-        if (macroName.find("<") == 0) {
+        if (macroName.find('<') == 0) {
             processedCode.append("#include ").append(macroName).push_back('\n');
         } else {
             if (!includeOtherFile(filename)) {
