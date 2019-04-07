@@ -1,5 +1,3 @@
-#include <iostream>
-#include <fstream>
 #include "preprocessor.h"
 
 using namespace std;
@@ -18,13 +16,7 @@ int main() {
 }
 
 void run_test(int test_case_number) {
-
     string raw_code = get_unprocessed_code(test_case_number);
-    /*
-     * TODO: Your Code Here!
-     * TODO: Take raw_code as your input, and output your processed code.
-     * TODO: You'd better create new classes to handle your logic and use here only as an entrance.
-     * */
     string processed_code = preProcess(raw_code);
     put_processed_code(test_case_number, processed_code);
     reset();

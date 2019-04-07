@@ -1,12 +1,4 @@
-#include <iostream>
-#include <cstdio>
-#include <string>
 #include <cstring>
-#include <fstream>
-#include <sstream>
-#include <map>
-#include <vector>
-#include <stack>
 #include "preprocessor.h"
 
 #define NPOS string::npos
