@@ -144,13 +144,8 @@ private:
 
     void includeHandler() {
         string filename = macroName.substr(1, macroName.length() - 2);
-        if (macroName.find('<') == 0) {
+        if (macroName.find('<') == 0 || !includeOtherFile(filename))
             processedCode.append("#include ").append(macroName).push_back('\n');
-        } else {
-            if (!includeOtherFile(filename)) {
-                processedCode.append("#include ").append(macroName).push_back('\n');
-            }
-        }
     }
 
     void defineHandler() {
