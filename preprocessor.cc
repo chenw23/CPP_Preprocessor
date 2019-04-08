@@ -12,35 +12,35 @@ public:
     Preprocessor() = default;
 
     string pre_process(const string &raw_code) {
-        vector<string> rawCodes = Preprocessor::split_string(raw_code, "\n");
-        int length = rawCodes.size();
+        vector<string> raw_codes = Preprocessor::split_string(raw_code, "\n");
+        int length = raw_codes.size();
         for (int i = 0; i < length; i++) {
-            line = rawCodes[i];
+            line = raw_codes[i];
             process_instruction();
         }
-        return processedCode;
+        return processed_code;
     }
 
     virtual ~Preprocessor() {
-        processedCode = "";
+        processed_code = "";
         macros.clear();
-        isShouldRead = true;
-        while (!shouldReadStack.empty()) shouldReadStack.pop();
+        should_read = true;
+        while (!should_read_stack.empty()) should_read_stack.pop();
     };
 
 private:
-    string processedCode;
+    string processed_code;
     map<string, string> macros;
-    string macroName;
-    string macroValue;
+    string macro_name;
+    string macro_value;
     string line;
-    bool isShouldRead = true;
-    stack<bool> shouldReadStack;
+    bool should_read = true;
+    stack<bool> should_read_stack;
 
     void process_instruction() {
         if (line.find("//") != string::npos) return;
         if (line.find('#') == 0) {
-            string tmpString = line.substr(line.find(' ', 2) + 1);
+            string macro_content = line.substr(line.find(' ', 2) + 1);
             if (line.find("else") != string::npos) {
                 elseHandler();
                 return;
@@ -48,64 +48,64 @@ private:
                 endifHandler();
                 return;
             } else if (line.find("ifdef") != string::npos) {
-                macroName = tmpString;
+                macro_name = macro_content;
                 ifdefHandler();
                 return;
             } else if (line.find("ifndef") != string::npos) {
-                macroName = tmpString;
+                macro_name = macro_content;
                 ifndefHander();
                 return;
             } else if (line.find("undef") != string::npos) {
-                macroName = tmpString;
+                macro_name = macro_content;
                 undefHandler();
                 return;
             }
-            if (isShouldRead) {
+            if (should_read) {
                 if (line.find("include") != string::npos) {
-                    macroName = tmpString;
+                    macro_name = macro_content;
                     includeHandler();
                     return;
                 } else if (line.find("define") != string::npos) {
-                    int index = tmpString.find(' ');
-                    macroName = tmpString.substr(0, index);
-                    macroValue = tmpString.substr(index + 1);
+                    int index = macro_content.find(' ');
+                    macro_name = macro_content.substr(0, index);
+                    macro_value = macro_content.substr(index + 1);
                     defineHandler();
                     return;
                 } else if (line.find("if") != string::npos) {
-                    macroName = tmpString;
+                    macro_name = macro_content;
                     ifHandler();
                     return;
                 }
             }
-        } else if (isShouldRead) normalInstructionHandler();
+        } else if (should_read) process_normal_code();
     }
 
-    void normalInstructionHandler() {
+    void process_normal_code() {
         map<string, string>::iterator iterator;
         iterator = macros.begin();
         while (iterator != macros.end()) {
-            macroName = iterator->first;
-            macroValue = iterator->second;
+            macro_name = iterator->first;
+            macro_value = iterator->second;
             string name, functionName;
-            if (macroName.find('(') != string::npos)
-                functionName = macroName.substr(0, macroName.find('(') + 1);
-            else name = macroName;
+            if (macro_name.find('(') != string::npos)
+                functionName = macro_name.substr(0, macro_name.find('(') + 1);
+            else name = macro_name;
             functionHandler(functionName);
             notFunctionHandler(name);
             iterator++;
         }
-        processedCode.append(line).push_back('\n');
+        processed_code.append(line).push_back('\n');
     }
 
     bool functionHandler(string name) {
-        if (name.compare("") == 0 || line.find(name) == string::npos || macroValue.compare("") == 0)
+        if (name.compare("") == 0 || line.find(name) == string::npos || macro_value.compare("") == 0)
             return false;
-        int indexOfLeftParenthesis = macroName.find('(');
-        int indexOfRightParenthesis = macroName.find(')');
+        int indexOfLeftParenthesis = macro_name.find('(');
+        int indexOfRightParenthesis = macro_name.find(')');
         string argOrigin =
-                macroName.substr(indexOfLeftParenthesis + 1,
-                                 indexOfRightParenthesis - indexOfLeftParenthesis - 1);
-        string functionName = macroName.substr(0, indexOfLeftParenthesis);
+                macro_name.substr(indexOfLeftParenthesis + 1,
+                                  indexOfRightParenthesis - indexOfLeftParenthesis - 1);
+        string functionName = macro_name.substr(0, indexOfLeftParenthesis);
         int index;
         string argInput;
         if ((index = line.find(functionName)) != string::npos) {
@@ -115,16 +115,16 @@ private:
                                    indexOfRightParenthesis - indexOfLeftParenthesis - 1);
             int tempIndex;
             string tmpValue;
-            if ((tempIndex = macroValue.find("##")) != string::npos) {
-                tmpValue = macroValue;
+            if ((tempIndex = macro_value.find("##")) != string::npos) {
+                tmpValue = macro_value;
                 tmpValue.replace(0, tempIndex + 3, argInput);
-            } else if ((tempIndex = macroValue.find_last_of("\"#")) != string::npos) {
-                tmpValue = macroValue;
+            } else if ((tempIndex = macro_value.find_last_of("\"#")) != string::npos) {
+                tmpValue = macro_value;
                 argOrigin = "\"#" + argOrigin;
                 tmpValue.replace(tempIndex, argOrigin.length(), "\"" + argInput + "\"");
             } else {
-                tempIndex = macroValue.find(argOrigin);
-                tmpValue = macroValue;
+                tempIndex = macro_value.find(argOrigin);
+                tmpValue = macro_value;
                 tmpValue.replace(tempIndex, argOrigin.length(), argInput);
             }
             line.replace(index, indexOfRightParenthesis - index + 1, tmpValue);
@@ -133,59 +133,55 @@ private:
     }
 
     void notFunctionHandler(string name) {
-        if (name.compare("") == 0 || line.find(name) == string::npos || macroValue.compare("") == 0) {
+        if (name.compare("") == 0 || line.find(name) == string::npos || macro_value.compare("") == 0) {
             return;
         }
         int index;
         if ((index = line.find(name)) != string::npos) {
-            line.replace(index, name.length(), macroValue);
+            line.replace(index, name.length(), macro_value);
         }
     }
 
     void includeHandler() {
-        string filename = macroName.substr(1, macroName.length() - 2);
-        if (macroName.find('<') == 0 || !includeOtherFile(filename))
-            processedCode.append("#include ").append(macroName).push_back('\n');
+        string filename = macro_name.substr(1, macro_name.length() - 2);
+        if (macro_name.find('<') == 0 || !includeOtherFile(filename))
+            processed_code.append("#include ").append(macro_name).push_back('\n');
     }
 
     void defineHandler() {
-        macros.erase(macroName);
-        while (macros.count(macroValue)) {
-            macroValue = macros[macroValue];
-        }
-        macros.insert(map<string, string>::value_type(macroName, macroValue));
+        macros.erase(macro_name);
+        while (macros.count(macro_value)) macro_value = macros[macro_value];
+        macros.insert(map<string, string>::value_type(macro_name, macro_value));
     }
 
     void undefHandler() {
-        macros.erase(macroName);
+        macros.erase(macro_name);
     }
 
     void ifdefHandler() {
-        shouldReadStack.push(isShouldRead);
-        isShouldRead = (macros.count(macroName) != 0);
+        should_read_stack.push(should_read);
+        should_read = (macros.count(macro_name) != 0);
     }
 
     void elseHandler() {
-        isShouldRead = !isShouldRead;
+        should_read = !should_read;
     }
 
     void ifndefHander() {
-        shouldReadStack.push(isShouldRead);
-        isShouldRead = (macros.count(macroName) == 0);
+        should_read_stack.push(should_read);
+        should_read = (macros.count(macro_name) == 0);
     }
 
     void ifHandler() {
-        shouldReadStack.push(isShouldRead);
-        while (macros.count(macroName) != 0) {
-            macroName = macros[macroName];
-        }
-        isShouldRead = (!macroName.compare("1"));
+        should_read_stack.push(should_read);
+        while (macros.count(macro_name) != 0) macro_name = macros[macro_name];
+        should_read = (!macro_name.compare("1"));
     }
 
     void endifHandler() {
-        if (!shouldReadStack.empty()) {
-            isShouldRead = shouldReadStack.top();
-            shouldReadStack.pop();
+        if (!should_read_stack.empty()) {
+            should_read = should_read_stack.top();
+            should_read_stack.pop();
         }
     }
 
@@ -202,13 +198,13 @@ private:
             while (getline(is, line)) file.append(line).push_back('\n');
             is.close();
         }
-        stack<bool> temStack = shouldReadStack;
-        bool tmpBool = isShouldRead;
-        while (!shouldReadStack.empty())
-            shouldReadStack.pop();
+        stack<bool> temStack = should_read_stack;
+        bool tmpBool = should_read;
+        while (!should_read_stack.empty())
+            should_read_stack.pop();
         pre_process(file);
-        shouldReadStack = temStack;
-        isShouldRead = tmpBool;
+        should_read_stack = temStack;
+        should_read = tmpBool;
         return true;
     }
 
