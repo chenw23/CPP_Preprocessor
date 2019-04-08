@@ -97,8 +97,8 @@ private:
         processed_code.append(line).push_back('\n');
     }
 
-    bool functionHandler(string name) {
-        if (name.compare("") == 0 || line.find(name) == string::npos || macro_value.compare("") == 0)
+    bool functionHandler(const string &name) {
+        if (name.empty() || line.find(name) == string::npos || macro_value.empty())
             return false;
         int indexOfLeftParenthesis = macro_name.find('(');
         int indexOfRightParenthesis = macro_name.find(')');
@@ -132,14 +132,12 @@ private:
         return true;
     }
 
-    void notFunctionHandler(string name) {
-        if (name.compare("") == 0 || line.find(name) == string::npos || macro_value.compare("") == 0) {
+    void notFunctionHandler(const string &name) {
+        if (name.empty() || line.find(name) == string::npos || macro_value.empty())
             return;
-        }
         int index;
-        if ((index = line.find(name)) != string::npos) {
+        if ((index = line.find(name)) != string::npos)
             line.replace(index, name.length(), macro_value);
-        }
     }
 
     void includeHandler() {
@@ -194,14 +192,13 @@ private:
             cout << "Broken input " + filename;
             return false;
         } else {
-            string line;
-            while (getline(is, line)) file.append(line).push_back('\n');
+            string reading_line;
+            while (getline(is, reading_line)) file.append(reading_line).push_back('\n');
             is.close();
         }
         stack<bool> temStack = should_read_stack;
         bool tmpBool = should_read;
-        while (!should_read_stack.empty())
-            should_read_stack.pop();
+        while (!should_read_stack.empty()) should_read_stack.pop();
         pre_process(file);
         should_read_stack = temStack;
         should_read = tmpBool;
@@ -213,9 +210,9 @@ private:
         strcpy(strTmp, str.c_str());
         vector<string> resultVec;
         char *tmpStr = strtok(strTmp, pattern.c_str());
-        while (tmpStr != NULL) {
-            resultVec.push_back(string(tmpStr));
-            tmpStr = strtok(NULL, pattern.c_str());
+        while (tmpStr != nullptr) {
+            resultVec.emplace_back(string(tmpStr));
+            tmpStr = strtok(nullptr, pattern.c_str());
         }
         delete[] strTmp;
         return resultVec;
