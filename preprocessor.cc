@@ -42,38 +42,38 @@ private:
         if (line.find('#') == 0) {
             string macro_content = line.substr(line.find(' ', 2) + 1);
             if (line.find("else") != string::npos) {
-                elseHandler();
+                macro_else();
                 return;
             } else if (line.find("endif") != string::npos) {
-                endifHandler();
+                macro_end_if();
                 return;
             } else if (line.find("ifdef") != string::npos) {
                 macro_name = macro_content;
-                ifdefHandler();
+                macro_if_def();
                 return;
             } else if (line.find("ifndef") != string::npos) {
                 macro_name = macro_content;
-                ifndefHander();
+                macro_if_not_def();
                 return;
             } else if (line.find("undef") != string::npos) {
                 macro_name = macro_content;
-                undefHandler();
+                macro_undef();
                 return;
             }
             if (should_read) {
                 if (line.find("include") != string::npos) {
                     macro_name = macro_content;
-                    includeHandler();
+                    macro_include();
                     return;
                 } else if (line.find("define") != string::npos) {
                     int index = macro_content.find(' ');
                     macro_name = macro_content.substr(0, index);
                     macro_value = macro_content.substr(index + 1);
-                    defineHandler();
+                    macro_define();
                     return;
                 } else if (line.find("if") != string::npos) {
                     macro_name = macro_content;
-                    ifHandler();
+                    macro_if();
                     return;
                 }
             }
@@ -87,15 +87,15 @@ private:
             macro_name = iterator->first;
             macro_value = iterator->second;
             if (macro_name.find('(') != string::npos)
-                process_function(macro_name.substr(0, macro_name.find('(') + 1));
+                replace_function(macro_name.substr(0, macro_name.find('(') + 1));
             else
-                notFunctionHandler(macro_name);
+                replace_macro(macro_name);
             iterator++;
         }
         processed_code.append(line).push_back('\n');
     }
 
-    bool process_function(const string &name) {
+    bool replace_function(const string &name) {
         if (name.empty() || line.find(name) == string::npos || macro_value.empty())
             return false;
         int left_parenthesis_index = macro_name.find('(');
@@ -128,7 +128,7 @@ private:
         return true;
     }
 
-    void notFunctionHandler(const string &name) {
+    void replace_macro(const string &name) {
         if (name.empty() || line.find(name) == string::npos || macro_value.empty())
             return;
         int index;
@@ -136,43 +136,43 @@ private:
             line.replace(index, name.length(), macro_value);
     }
 
-    void includeHandler() {
+    void macro_include() {
         string filename = macro_name.substr(1, macro_name.length() - 2);
         if (macro_name.find('<') == 0 || !includeOtherFile(filename))
             processed_code.append("#include ").append(macro_name).push_back('\n');
     }
 
-    void defineHandler() {
+    void macro_define() {
         macros.erase(macro_name);
         while (macros.count(macro_value)) macro_value = macros[macro_value];
         macros.insert(map<string, string>::value_type(macro_name, macro_value));
     }
 
-    void undefHandler() {
+    void macro_undef() {
         macros.erase(macro_name);
     }
 
-    void ifdefHandler() {
+    void macro_if_def() {
         should_read_stack.push(should_read);
         should_read = (macros.count(macro_name) != 0);
     }
 
-    void elseHandler() {
+    void macro_else() {
         should_read = !should_read;
     }
 
-    void ifndefHander() {
+    void macro_if_not_def() {
         should_read_stack.push(should_read);
         should_read = (macros.count(macro_name) == 0);
     }
 
-    void ifHandler() {
+    void macro_if() {
         should_read_stack.push(should_read);
         while (macros.count(macro_name) != 0) macro_name = macros[macro_name];
         should_read = (macro_name == "1");
     }
 
-    void endifHandler() {
+    void macro_end_if() {
         if (!should_read_stack.empty()) {
             should_read = should_read_stack.top();
             should_read_stack.pop();
