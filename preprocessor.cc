@@ -11,8 +11,8 @@ class Preprocessor {
 public:
     Preprocessor() = default;
 
-    string pre_process(const string &rawCode) {
-        vector<string> rawCodes = splitString(rawCode, "\n");
+    string pre_process(const string &raw_code) {
+        vector<string> rawCodes = Preprocessor::split_string(raw_code, "\n");
         int length = rawCodes.size();
         for (int i = 0; i < length; i++) {
             line = rawCodes[i];
@@ -212,7 +212,7 @@ private:
         return true;
     }
 
-    vector<string> splitString(const string &str, const string &pattern) {
+    static vector<string> split_string(const string &str, const string &pattern) {
         char *strTmp = new char[strlen(str.c_str()) + 1];
         strcpy(strTmp, str.c_str());
         vector<string> resultVec;
