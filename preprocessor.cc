@@ -97,10 +97,9 @@ private:
             return false;
         int left_parenthesis_index = macro_name.find('(');
         int right_parenthesis_index = macro_name.find(')');
-        string arg =
-                macro_name.substr(
-                        left_parenthesis_index + 1,
-                        right_parenthesis_index - left_parenthesis_index - 1);
+        string arg = macro_name.substr(
+                left_parenthesis_index + 1,
+                right_parenthesis_index - left_parenthesis_index - 1);
         string function_name = macro_name.substr(0, left_parenthesis_index);
         int index;
         string arg_input;
@@ -110,17 +109,17 @@ private:
             arg_input = line.substr(left_parenthesis_index + 1,
                                     right_parenthesis_index - left_parenthesis_index - 1);
             int replace_index;
-            string tmpValue = macro_value;
-            if ((replace_index = macro_value.find("##")) != string::npos) {
-                tmpValue.replace(0, replace_index + 3, arg_input);
-            } else if ((replace_index = macro_value.find_last_of("\"#")) != string::npos) {
+            string replaced_text = macro_value;
+            if ((replace_index = macro_value.find("##")) != string::npos)
+                replaced_text.replace(0, replace_index + 3, arg_input);
+            else if ((replace_index = macro_value.find_last_of("\"#")) != string::npos) {
                 arg = "\"#" + arg;
-                tmpValue.replace(replace_index, arg.length(), "\"" + arg_input + "\"");
+                replaced_text.replace(replace_index, arg.length(), "\"" + arg_input + "\"");
             } else {
                 replace_index = macro_value.find(arg);
-                tmpValue.replace(replace_index, arg.length(), arg_input);
+                replaced_text.replace(replace_index, arg.length(), arg_input);
             }
-            line.replace(index, right_parenthesis_index - index + 1, tmpValue);
+            line.replace(index, right_parenthesis_index - index + 1, replaced_text);
         }
         return true;
     }
