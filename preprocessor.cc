@@ -21,7 +21,10 @@ public:
     }
 
     virtual ~Preprocessor() {
-        processed_code = "";
+        processed_code.erase();
+        macro_name.erase();
+        macro_value.erase();
+        line.erase();
         macros.clear();
         should_read = true;
         while (!should_read_stack.empty()) should_read_stack.pop();
