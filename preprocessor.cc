@@ -136,9 +136,8 @@ private:
         if (name.empty() || line.find(name) == string::npos || macroValue.empty())
             return;
         int index;
-        if ((index = line.find(name)) != string::npos) {
+        if ((index = line.find(name)) != string::npos)
             line.replace(index, name.length(), macroValue);
-        }
     }
 
     void includeHandler() {
@@ -149,9 +148,7 @@ private:
 
     void defineHandler() {
         macros.erase(macroName);
-        while (macros.count(macroValue)) {
-            macroValue = macros[macroValue];
-        }
+        while (macros.count(macroValue)) macroValue = macros[macroValue];
         macros.insert(map<string, string>::value_type(macroName, macroValue));
     }
 
@@ -175,9 +172,7 @@ private:
 
     void ifHandler() {
         shouldReadStack.push(isShouldRead);
-        while (macros.count(macroName) != 0) {
-            macroName = macros[macroName];
-        }
+        while (macros.count(macroName) != 0) macroName = macros[macroName];
         isShouldRead = (macroName != "1");
     }
 
@@ -203,8 +198,7 @@ private:
         }
         stack<bool> temStack = shouldReadStack;
         bool tmpBool = isShouldRead;
-        while (!shouldReadStack.empty())
-            shouldReadStack.pop();
+        while (!shouldReadStack.empty()) shouldReadStack.pop();
         pre_process(file);
         shouldReadStack = temStack;
         isShouldRead = tmpBool;
