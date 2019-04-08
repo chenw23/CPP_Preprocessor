@@ -12,35 +12,35 @@ public:
     Preprocessor() = default;
 
     string pre_process(const string &raw_code) {
-        vector<string> raw_codes = Preprocessor::split_string(raw_code, "\n");
-        int length = raw_codes.size();
+        vector<string> rawCodes = Preprocessor::split_string(raw_code, "\n");
+        int length = rawCodes.size();
         for (int i = 0; i < length; i++) {
-            line = raw_codes[i];
+            line = rawCodes[i];
             process_instruction();
         }
-        return processed_code;
+        return processedCode;
     }
 
     virtual ~Preprocessor() {
-        processed_code = "";
+        processedCode = "";
         macros.clear();
-        should_read = true;
-        while (!should_read_stack.empty()) should_read_stack.pop();
+        isShouldRead = true;
+        while (!shouldReadStack.empty()) shouldReadStack.pop();
     };
 
 private:
-    string processed_code;
+    string processedCode;
     map<string, string> macros;
-    string macro_name;
-    string macro_value;
+    string macroName;
+    string macroValue;
     string line;
-    bool should_read = true;
-    stack<bool> should_read_stack;
+    bool isShouldRead = true;
+    stack<bool> shouldReadStack;
 
     void process_instruction() {
         if (line.find("//") != string::npos) return;
         if (line.find('#') == 0) {
-            string macro_content = line.substr(line.find(' ', 2) + 1);
+            string tmpString = line.substr(line.find(' ', 2) + 1);
             if (line.find("else") != string::npos) {
                 elseHandler();
                 return;
@@ -48,64 +48,64 @@ private:
                 endifHandler();
                 return;
             } else if (line.find("ifdef") != string::npos) {
-                macro_name = macro_content;
+                macroName = tmpString;
                 ifdefHandler();
                 return;
             } else if (line.find("ifndef") != string::npos) {
-                macro_name = macro_content;
+                macroName = tmpString;
                 ifndefHander();
                 return;
             } else if (line.find("undef") != string::npos) {
-                macro_name = macro_content;
+                macroName = tmpString;
                 undefHandler();
                 return;
             }
-            if (should_read) {
+            if (isShouldRead) {
                 if (line.find("include") != string::npos) {
-                    macro_name = macro_content;
+                    macroName = tmpString;
                     includeHandler();
                     return;
                 } else if (line.find("define") != string::npos) {
-                    int index = macro_content.find(' ');
-                    macro_name = macro_content.substr(0, index);
-                    macro_value = macro_content.substr(index + 1);
+                    int index = tmpString.find(' ');
+                    macroName = tmpString.substr(0, index);
+                    macroValue = tmpString.substr(index + 1);
                     defineHandler();
                     return;
                 } else if (line.find("if") != string::npos) {
-                    macro_name = macro_content;
+                    macroName = tmpString;
                     ifHandler();
                     return;
                 }
             }
-        } else if (should_read) process_normal_code();
+        } else if (isShouldRead) normalInstructionHandler();
     }
 
-    void process_normal_code() {
+    void normalInstructionHandler() {
         map<string, string>::iterator iterator;
         iterator = macros.begin();
         while (iterator != macros.end()) {
-            macro_name = iterator->first;
-            macro_value = iterator->second;
+            macroName = iterator->first;
+            macroValue = iterator->second;
             string name, functionName;
-            if (macro_name.find('(') != string::npos)
-                functionName = macro_name.substr(0, macro_name.find('(') + 1);
-            else name = macro_name;
+            if (macroName.find('(') != string::npos)
+                functionName = macroName.substr(0, macroName.find('(') + 1);
+            else name = macroName;
             functionHandler(functionName);
             notFunctionHandler(name);
             iterator++;
         }
-        processed_code.append(line).push_back('\n');
+        processedCode.append(line).push_back('\n');
     }
 
-    bool functionHandler(const string &name) {
-        if (name.empty() || line.find(name) == string::npos || macro_value.empty())
+    bool functionHandler(string name) {
+        if (name.compare("") == 0 || line.find(name) == string::npos || macroValue.compare("") == 0)
             return false;
-        int indexOfLeftParenthesis = macro_name.find('(');
-        int indexOfRightParenthesis = macro_name.find(')');
+        int indexOfLeftParenthesis = macroName.find('(');
+        int indexOfRightParenthesis = macroName.find(')');
         string argOrigin =
-                macro_name.substr(indexOfLeftParenthesis + 1,
-                                  indexOfRightParenthesis - indexOfLeftParenthesis - 1);
-        string functionName = macro_name.substr(0, indexOfLeftParenthesis);
+                macroName.substr(indexOfLeftParenthesis + 1,
+                                 indexOfRightParenthesis - indexOfLeftParenthesis - 1);
+        string functionName = macroName.substr(0, indexOfLeftParenthesis);
         int index;
         string argInput;
         if ((index = line.find(functionName)) != string::npos) {
@@ -115,16 +115,16 @@ private:
                                    indexOfRightParenthesis - indexOfLeftParenthesis - 1);
             int tempIndex;
             string tmpValue;
-            if ((tempIndex = macro_value.find("##")) != string::npos) {
-                tmpValue = macro_value;
+            if ((tempIndex = macroValue.find("##")) != string::npos) {
+                tmpValue = macroValue;
                 tmpValue.replace(0, tempIndex + 3, argInput);
-            } else if ((tempIndex = macro_value.find_last_of("\"#")) != string::npos) {
-                tmpValue = macro_value;
+            } else if ((tempIndex = macroValue.find_last_of("\"#")) != string::npos) {
+                tmpValue = macroValue;
                 argOrigin = "\"#" + argOrigin;
                 tmpValue.replace(tempIndex, argOrigin.length(), "\"" + argInput + "\"");
             } else {
-                tempIndex = macro_value.find(argOrigin);
-                tmpValue = macro_value;
+                tempIndex = macroValue.find(argOrigin);
+                tmpValue = macroValue;
                 tmpValue.replace(tempIndex, argOrigin.length(), argInput);
             }
             line.replace(index, indexOfRightParenthesis - index + 1, tmpValue);
@@ -132,59 +132,65 @@ private:
         return true;
     }
 
-    void notFunctionHandler(const string &name) {
-        if (name.empty() || line.find(name) == string::npos || macro_value.empty())
+    void notFunctionHandler(string name) {
+        if (name.compare("") == 0 || line.find(name) == string::npos || macroValue.compare("") == 0) {
             return;
+        }
         int index;
-        if ((index = line.find(name)) != string::npos)
-            line.replace(index, name.length(), macro_value);
+        if ((index = line.find(name)) != string::npos) {
+            line.replace(index, name.length(), macroValue);
+        }
     }
 
     void includeHandler() {
-        string filename = macro_name.substr(1, macro_name.length() - 2);
-        if (macro_name.find('<') == 0 || !includeOtherFile(filename))
-            processed_code.append("#include ").append(macro_name).push_back('\n');
+        string filename = macroName.substr(1, macroName.length() - 2);
+        if (macroName.find('<') == 0 || !includeOtherFile(filename))
+            processedCode.append("#include ").append(macroName).push_back('\n');
     }
 
     void defineHandler() {
-        macros.erase(macro_name);
-        while (macros.count(macro_value)) macro_value = macros[macro_value];
-        macros.insert(map<string, string>::value_type(macro_name, macro_value));
+        macros.erase(macroName);
+        while (macros.count(macroValue)) {
+            macroValue = macros[macroValue];
+        }
+        macros.insert(map<string, string>::value_type(macroName, macroValue));
     }
 
     void undefHandler() {
-        macros.erase(macro_name);
+        macros.erase(macroName);
     }
 
     void ifdefHandler() {
-        should_read_stack.push(should_read);
-        should_read = (macros.count(macro_name) != 0);
+        shouldReadStack.push(isShouldRead);
+        isShouldRead = (macros.count(macroName) != 0);
     }
 
     void elseHandler() {
-        should_read = !should_read;
+        isShouldRead = !isShouldRead;
     }
 
     void ifndefHander() {
-        should_read_stack.push(should_read);
-        should_read = (macros.count(macro_name) == 0);
+        shouldReadStack.push(isShouldRead);
+        isShouldRead = (macros.count(macroName) == 0);
     }
 
     void ifHandler() {
-        should_read_stack.push(should_read);
-        while (macros.count(macro_name) != 0) macro_name = macros[macro_name];
-        should_read = (macro_name != "1");
+        shouldReadStack.push(isShouldRead);
+        while (macros.count(macroName) != 0) {
+            macroName = macros[macroName];
+        }
+        isShouldRead = (!macroName.compare("1"));
     }
 
     void endifHandler() {
-        if (!should_read_stack.empty()) {
-            should_read = should_read_stack.top();
-            should_read_stack.pop();
+        if (!shouldReadStack.empty()) {
+            isShouldRead = shouldReadStack.top();
+            shouldReadStack.pop();
         }
     }
 
     bool includeOtherFile(string filename) {
-        if (filename == "iostream") return false;
+        if (!filename.compare("iostream")) return false;
         filename = "test/" + filename;
         string file;
         ifstream is(filename);
@@ -192,16 +198,17 @@ private:
             cout << "Broken input " + filename;
             return false;
         } else {
-            string reading_line;
-            while (getline(is, reading_line)) file.append(reading_line).push_back('\n');
+            string line;
+            while (getline(is, line)) file.append(line).push_back('\n');
             is.close();
         }
-        stack<bool> temStack = should_read_stack;
-        bool tmpBool = should_read;
-        while (!should_read_stack.empty()) should_read_stack.pop();
+        stack<bool> temStack = shouldReadStack;
+        bool tmpBool = isShouldRead;
+        while (!shouldReadStack.empty())
+            shouldReadStack.pop();
         pre_process(file);
-        should_read_stack = temStack;
-        should_read = tmpBool;
+        shouldReadStack = temStack;
+        isShouldRead = tmpBool;
         return true;
     }
 
@@ -210,9 +217,9 @@ private:
         strcpy(strTmp, str.c_str());
         vector<string> resultVec;
         char *tmpStr = strtok(strTmp, pattern.c_str());
-        while (tmpStr != nullptr) {
-            resultVec.emplace_back(string(tmpStr));
-            tmpStr = strtok(nullptr, pattern.c_str());
+        while (tmpStr != NULL) {
+            resultVec.push_back(string(tmpStr));
+            tmpStr = strtok(NULL, pattern.c_str());
         }
         delete[] strTmp;
         return resultVec;
