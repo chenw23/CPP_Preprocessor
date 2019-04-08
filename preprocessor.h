@@ -16,7 +16,7 @@ public:
         int length = rawCodes.size();
         for (int i = 0; i < length; i++) {
             line = rawCodes[i];
-            instructionJudge();
+            process_instruction();
         }
         return processedCode;
     }
@@ -37,7 +37,7 @@ private:
     bool isShouldRead = true;
     stack<bool> shouldReadStack;
 
-    void instructionJudge() {
+    void process_instruction() {
         if (line.find("//") != string::npos) return;
         if (line.find('#') == 0) {
             string tmpString = line.substr(line.find(' ', 2) + 1);
