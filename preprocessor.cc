@@ -86,48 +86,44 @@ private:
         while (iterator != macros.end()) {
             macro_name = iterator->first;
             macro_value = iterator->second;
-            string name, functionName;
             if (macro_name.find('(') != string::npos)
-                functionName = macro_name.substr(0, macro_name.find('(') + 1);
-            else name = macro_name;
-            functionHandler(functionName);
-            notFunctionHandler(name);
+                process_function(macro_name.substr(0, macro_name.find('(') + 1));
+            else
+                notFunctionHandler(macro_name);
             iterator++;
         }
         processed_code.append(line).push_back('\n');
     }
 
-    bool functionHandler(const string &name) {
+    bool process_function(const string &name) {
         if (name.empty() || line.find(name) == string::npos || macro_value.empty())
             return false;
-        int indexOfLeftParenthesis = macro_name.find('(');
-        int indexOfRightParenthesis = macro_name.find(')');
-        string argOrigin =
-                macro_name.substr(indexOfLeftParenthesis + 1,
-                                  indexOfRightParenthesis - indexOfLeftParenthesis - 1);
-        string functionName = macro_name.substr(0, indexOfLeftParenthesis);
+        int left_parenthesis_index = macro_name.find('(');
+        int right_parenthesis_index = macro_name.find(')');
+        string arg =
+                macro_name.substr(
+                        left_parenthesis_index + 1,
+                        right_parenthesis_index - left_parenthesis_index - 1);
+        string function_name = macro_name.substr(0, left_parenthesis_index);
         int index;
-        string argInput;
-        if ((index = line.find(functionName)) != string::npos) {
-            indexOfLeftParenthesis = line.find('(', index);
-            indexOfRightParenthesis = line.find(')', index);
-            argInput = line.substr(indexOfLeftParenthesis + 1,
-                                   indexOfRightParenthesis - indexOfLeftParenthesis - 1);
-            int tempIndex;
-            string tmpValue;
-            if ((tempIndex = macro_value.find("##")) != string::npos) {
-                tmpValue = macro_value;
-                tmpValue.replace(0, tempIndex + 3, argInput);
-            } else if ((tempIndex = macro_value.find_last_of("\"#")) != string::npos) {
-                tmpValue = macro_value;
-                argOrigin = "\"#" + argOrigin;
-                tmpValue.replace(tempIndex, argOrigin.length(), "\"" + argInput + "\"");
+        string arg_input;
+        if ((index = line.find(function_name)) != string::npos) {
+            left_parenthesis_index = line.find('(', index);
+            right_parenthesis_index = line.find(')', index);
+            arg_input = line.substr(left_parenthesis_index + 1,
+                                    right_parenthesis_index - left_parenthesis_index - 1);
+            int replace_index;
+            string tmpValue = macro_value;
+            if ((replace_index = macro_value.find("##")) != string::npos) {
+                tmpValue.replace(0, replace_index + 3, arg_input);
+            } else if ((replace_index = macro_value.find_last_of("\"#")) != string::npos) {
+                arg = "\"#" + arg;
+                tmpValue.replace(replace_index, arg.length(), "\"" + arg_input + "\"");
             } else {
-                tempIndex = macro_value.find(argOrigin);
-                tmpValue = macro_value;
-                tmpValue.replace(tempIndex, argOrigin.length(), argInput);
+                replace_index = macro_value.find(arg);
+                tmpValue.replace(replace_index, arg.length(), arg_input);
             }
-            line.replace(index, indexOfRightParenthesis - index + 1, tmpValue);
+            line.replace(index, right_parenthesis_index - index + 1, tmpValue);
         }
         return true;
     }
