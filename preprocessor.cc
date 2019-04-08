@@ -42,7 +42,7 @@ private:
     void process_instruction() {
         if (line.find("//") != string::npos) return;
         if (line.find('#') == 0) {
-            string macro_content = line.substr(line.find(' ', 2) + 1);
+            macro_name = line.substr(line.find(' ', 2) + 1);
             if (line.find("else") != string::npos) {
                 macro_else();
                 return;
@@ -50,31 +50,26 @@ private:
                 macro_end_if();
                 return;
             } else if (line.find("ifdef") != string::npos) {
-                macro_name = macro_content;
                 macro_if_def();
                 return;
             } else if (line.find("ifndef") != string::npos) {
-                macro_name = macro_content;
                 macro_if_not_def();
                 return;
             } else if (line.find("undef") != string::npos) {
-                macro_name = macro_content;
                 macro_undef();
                 return;
             }
             if (should_read) {
                 if (line.find("include") != string::npos) {
-                    macro_name = macro_content;
                     macro_include();
                     return;
                 } else if (line.find("define") != string::npos) {
-                    int index = macro_content.find(' ');
-                    macro_name = macro_content.substr(0, index);
-                    macro_value = macro_content.substr(index + 1);
+                    int index = macro_name.find(' ');
+                    macro_value = macro_name.substr(index + 1);
+                    macro_name = macro_name.substr(0, index);
                     macro_define();
                     return;
                 } else if (line.find("if") != string::npos) {
-                    macro_name = macro_content;
                     macro_if();
                     return;
                 }
