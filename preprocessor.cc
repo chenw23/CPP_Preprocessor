@@ -13,9 +13,8 @@ public:
 
     string pre_process(const string &raw_code) {
         vector<string> raw_codes = Preprocessor::split_string(raw_code, "\n");
-        int length = raw_codes.size();
-        for (int i = 0; i < length; i++) {
-            line = raw_codes[i];
+        for (auto &code:raw_codes) {
+            line = code;
             process_instruction();
         }
         return processed_code;
