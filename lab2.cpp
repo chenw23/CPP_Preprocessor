@@ -1,5 +1,4 @@
 #include "preprocessor.cc"
-#include <cstring>
 
 string get_unprocessed_code(int number);
 
