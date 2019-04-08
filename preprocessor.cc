@@ -178,22 +178,22 @@ private:
     bool includeOtherFile(string filename) {
         if (filename == "iostream") return false;
         filename = "test/" + filename;
-        string file;
+        string code;
         ifstream is(filename);
         if (!is.is_open()) {
             cout << "Broken input " + filename;
             return false;
         } else {
             string reading_line;
-            while (getline(is, reading_line)) file.append(reading_line).push_back('\n');
+            while (getline(is, reading_line)) code.append(reading_line).push_back('\n');
             is.close();
         }
-        stack<bool> temStack = should_read_stack;
-        bool tmpBool = should_read;
+        stack<bool> temp_stack = should_read_stack;
+        bool temp_bool = should_read;
         while (!should_read_stack.empty()) should_read_stack.pop();
-        pre_process(file);
-        should_read_stack = temStack;
-        should_read = tmpBool;
+        pre_process(code);
+        should_read_stack = temp_stack;
+        should_read = temp_bool;
         return true;
     }
 
