@@ -173,7 +173,7 @@ private:
     void ifHandler() {
         should_read_stack.push(should_read);
         while (macros.count(macro_name) != 0) macro_name = macros[macro_name];
-        should_read = (!macro_name.compare("1"));
+        should_read = (macro_name == "1");
     }
 
     void endifHandler() {
@@ -184,7 +184,7 @@ private:
     }
 
     bool includeOtherFile(string filename) {
-        if (!filename.compare("iostream")) return false;
+        if (filename == "iostream") return false;
         filename = "test/" + filename;
         string file;
         ifstream is(filename);
