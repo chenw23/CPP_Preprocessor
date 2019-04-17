@@ -25,7 +25,7 @@ using namespace std;
  * The class for the implementation of the preprocessor, only the constructor,
  * destructor and an entrance for input raw code string and output processed
  * string are public methods.
- * \par
+ *
  * A instance should be instantiated before utilizing these methods and the
  * pre_process method should be called to accomplish the task.
  *
@@ -53,6 +53,11 @@ public:
         return processed_code;
     }
 
+    /**
+     * The destructor cleans up the data fields used in this class
+     * Basically, it erases all the strings, clears the map structure
+     * and pops all the element in the stack.
+     */
     virtual ~Preprocessor() {
         processed_code.erase();
         macro_name.erase();
@@ -64,14 +69,62 @@ public:
     };
 
 private:
+    /**
+     * The string containing all the processed code, line by line
+     */
     string processed_code;
+    /**
+     * A map of all the macro definitions
+     */
     map<string, string> macros;
+    /**
+     * The current processing macro name
+     */
     string macro_name;
+    /**
+     * The current processing macro value
+     */
     string macro_value;
+    /**
+     * The current reading line in the raw code
+     */
     string line;
+    /**
+     * The flag signature indicating the if-else control
+     */
     bool should_read = true;
+    /**
+     * The stack is used to handle nested condition controls
+     * Each nested logic control will have one bool element put
+     * into the stack and the stack will pop a bool element when
+     * one control logic meets the end, i.e. the endif statement
+     */
     stack<bool> should_read_stack;
 
+    /**
+     * @brief The main routine of the processing logic this method
+     * is called for each line in the raw code.
+     *
+     * @arg The contend of the line is not passed as an argument but
+     * stored in the class field because other methods will also
+     * use the value.
+     *
+     * @details It has the following functions:
+     * 1) Skips the statements starting with "//", which will be
+     *      regarded as comments;
+     * 2) Regards any line starting with "#" as a macro and process
+     *      the macro correspondingly, the characters between the
+     *      sharp symbol and the first whitespace will be regarded
+     *      as the name of the macro and different kind of macros
+     *      are treated separately;
+     * 3) Any line not meeting the two requirements above are
+     *      treated as general codes and will be processed to
+     *      handle the needs of macro substitution, logic control
+     *      and so on.
+     *
+     * @retval The processed code for each raw line will be put in
+     * the class variable @code{processed_code}.
+     */
     void process_instruction() {
         if (line.find("//") != string::npos) return;
         if (line.find('#') == 0) {
@@ -110,6 +163,23 @@ private:
         } else if (should_read) process_normal_code();
     }
 
+    /**
+     * @brief The main handler for the normal code processing.
+     *
+     * @arg The contend of the line is not passed as an argument but
+     * stored in the class field because other methods will also
+     * use the value.
+     *
+     * @details The iterator of the map structure is used to determine
+     * if there are any macro in the code line.
+     * Furthermore, this separates the functional macros(those with
+     * parenthesis and arguments) from the un-functional macros(those
+     * without parenthesis). In each condition, an additional method is
+     * called to replace the corresponding macro.
+     *
+     * @retval The processed code for each raw line will be put in
+     * the class variable @code{processed_code}.
+     */
     void process_normal_code() {
         map<string, string>::iterator iterator;
         iterator = macros.begin();
@@ -125,9 +195,17 @@ private:
         processed_code.append(line).push_back('\n');
     }
 
-    bool replace_function(const string &name) {
+    /**
+     * @brief Replaces the functional macro appeared in codes with its
+     * definitions
+     *
+     * @details String operation is used to replace the macros while
+     * retaining the arguments as the component of the macro
+     * @param name The name of the macro
+     */
+    void replace_function(const string &name) {
         if (name.empty() || line.find(name) == string::npos || macro_value.empty())
-            return false;
+            return;
         int left_parenthesis_index = macro_name.find('(');
         int right_parenthesis_index = macro_name.find(')');
         string arg = macro_name.substr(
@@ -154,7 +232,6 @@ private:
             }
             line.replace(index, right_parenthesis_index - index + 1, replaced_text);
         }
-        return true;
     }
 
     void replace_macro(const string &name) {
