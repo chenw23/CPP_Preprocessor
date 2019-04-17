@@ -234,6 +234,14 @@ private:
         }
     }
 
+    /**
+     * @brief Replaces the non-functional macro appeared in codes with
+     * its definitions
+     *
+     * @details String operation is used to replace the macros while
+     * retaining the arguments as the component of the macro
+     * @param name The name of the macro
+     */
     void replace_macro(const string &name) {
         if (name.empty() || line.find(name) == string::npos || macro_value.empty())
             return;
@@ -242,6 +250,9 @@ private:
             line.replace(index, name.length(), macro_value);
     }
 
+    /**
+     * @brief The methods below are all the handlers of each curcumstance
+     */
     void macro_include() {
         string filename = macro_name.substr(1, macro_name.length() - 2);
         if (macro_name.find('<') == 0 || !includeOtherFile(filename))
@@ -277,6 +288,23 @@ private:
         }
     }
 
+    /**
+     * @brief Includes header files at the beginning of the file
+     *
+     * @details This method has the following behaviour in our lab
+     * 1) All library header files are left as they are to the output
+     *      file;
+     * 2) In the test file, only "iostream" library header file is
+     *      considered;
+     * 3) Other non-library header files are processed normally;
+     * 4) Non-library header files are in the test folder;
+     * 5) In my version of implementation, the non-library header
+     *      files are processed recursively.
+     * @param filename The name of the header file
+     * @return If the header file is not a library file and the reading
+     * of the file is successful, then returns @code{true}; otherwise
+     * @code{false}.
+     */
     bool includeOtherFile(string filename) {
         if (filename == "iostream") return false;
         filename = "test/" + filename;
@@ -299,6 +327,12 @@ private:
         return true;
     }
 
+    /**
+     * The helper static method splitting the input string into vectors
+     * @param str The string to be split
+     * @param pattern The deliminator of the splitting
+     * @return The vector containing each part of the string
+     */
     static vector<string> split_string(const string &str, const string &pattern) {
         char *char_array = new char[strlen(str.c_str()) + 1];
         strcpy(char_array, str.c_str());
