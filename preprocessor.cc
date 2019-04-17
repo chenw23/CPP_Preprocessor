@@ -1,3 +1,14 @@
+/**
+ * @file preprocessor.cc
+ * @brief The implementation of the preprocessor
+ *
+ * @copyright This file is part of the lab in Object-oriented
+ * programming course, a student project by Wang, Chen
+ *
+ * @author Wang, Chen(Student ID:16307110064)
+ * @date April 8th, 2019
+ *
+ */
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -7,10 +18,32 @@
 
 using namespace std;
 
+/**
+ * @brief The encapsulated implementation of the preprocessor
+ *
+ * @details
+ * The class for the implementation of the preprocessor, only the constructor,
+ * destructor and an entrance for input raw code string and output processed
+ * string are public methods.
+ * \par
+ * A instance should be instantiated before utilizing these methods and the
+ * pre_process method should be called to accomplish the task.
+ *
+ */
 class Preprocessor {
 public:
+    /**
+     * A trivial constructor because there is no configuration needed in the
+     * construction process
+     */
     Preprocessor() = default;
 
+    /**
+     * The entrance method for the outside class to get the processed code
+     *
+     * @param raw_code The entire string of the input file
+     * @return The entire string of the output file
+     */
     string pre_process(const string &raw_code) {
         vector<string> raw_codes = Preprocessor::split_string(raw_code, "\n");
         for (auto &code:raw_codes) {
