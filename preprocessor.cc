@@ -77,7 +77,7 @@ private:
         if (line.find('#') == 0) {
             macro_name = line.substr(line.find(' ', 2) + 1);
             if (line.find("else") != string::npos) {
-                macro_else();
+                should_read = !should_read;
                 return;
             } else if (line.find("endif") != string::npos) {
                 macro_end_if();
@@ -89,7 +89,7 @@ private:
                 macro_if_not_def();
                 return;
             } else if (line.find("undef") != string::npos) {
-                macro_undef();
+                macros.erase(macro_name);
                 return;
             }
             if (should_read) {
@@ -177,17 +177,9 @@ private:
         macros.insert(map<string, string>::value_type(macro_name, macro_value));
     }
 
-    void macro_undef() {
-        macros.erase(macro_name);
-    }
-
     void macro_if_def() {
         should_read_stack.push(should_read);
         should_read = (macros.count(macro_name) != 0);
-    }
-
-    void macro_else() {
-        should_read = !should_read;
     }
 
     void macro_if_not_def() {
